@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ScamLab</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">SL</div>
+      <div>
+        <div class="title">ScamLab</div>
+       
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button id="tabGame" class="tab active" type="button">Game</button>
+      <button id="tabAnalytics" class="tab" type="button">Analytics</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- GAME VIEW -->
+    <section id="viewGame" class="view">
+      <div class="panel header-panel">
+        <div class="row">
+          <div class="field">
+            <label for="scenarioSelect">Scenario</label>
+            <select id="scenarioSelect"></select>
+          </div>
+
+          <div class="field">
+            <label>Difficulty</label>
+            <div id="difficultyBadge" class="badge">—</div>
+          </div>
+
+          <div class="field">
+            <label>Risk Score</label>
+            <div id="riskBadge" class="badge">0</div>
+          </div>
+
+          <div class="field">
+            <label>Badges</label>
+            <div id="badgesBadge" class="badge">0</div>
+          </div>
+
+          <div class="actions">
+            <button id="startBtn" class="btn primary" type="button">Start</button>
+            <button id="restartBtn" class="btn" type="button" disabled>Restart</button>
+          </div>
+        </div>
+
+        <div id="scenarioIntro" class="intro">
+          Select a scenario, then press Start.
+        </div>
+      </div>
+
+      <div class="panel chat-panel">
+        <div id="chat" class="chat"></div>
+
+        <div id="typing" class="typing hidden" aria-live="polite">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="typing-text">Typing…</span>
+        </div>
+
+        <div id="explain" class="explain hidden"></div>
+
+        <div id="choices" class="choices"></div>
+      </div>
+
+      <div id="result" class="panel result-panel hidden"></div>
+
+      <div class="panel tools-panel">
+        <div class="tools-row">
+          <button id="exportBtn" class="btn" type="button" disabled>Export Report (Markdown)</button>
+          <button id="copyBtn" class="btn" type="button" disabled>Copy Report</button>
+          <div class="hint">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS VIEW -->
+    <section id="viewAnalytics" class="view hidden">
+      <div class="panel">
+        <div class="analytics-head">
+          <h2>Analytics</h2>
+          <button id="resetStatsBtn" class="btn danger" type="button">Reset Stats</button>
+        </div>
+        <p class="muted">
+          This dashboard is stored locally in your browser (localStorage).
+        </p>
+
+        <div class="grid">
+          <div class="stat">
+            <div class="stat-label">Total Runs</div>
+            <div id="statRuns" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Average Risk</div>
+            <div id="statAvgRisk" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Best (Lowest) Risk</div>
+            <div id="statBestRisk" class="stat-value">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Most Missed Red Flag</div>
+            <div id="statMostMissed" class="stat-value">—</div>
+          </div>
+        </div>
+
+        <h3>Per Scenario</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Runs</th>
+                <th>Best Risk</th>
+                <th>Avg Risk</th>
+                <th>Most Missed Flag</th>
+              </tr>
+            </thead>
+            <tbody id="scenarioTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>CyberSense — educational simulation only.</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

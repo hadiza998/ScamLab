@@ -1,0 +1,123 @@
+{
+  "title": "MFA Code Theft — Fake IT Helpdesk",
+  "difficulty": "Easy",
+  "intro": "A message claims to be IT Support. Your goal: avoid sharing MFA codes, verify the sender, and report suspicious requests.",
+  "typingDelayMs": 650,
+  "advice": [
+    "Never share MFA/OTP codes with anyone.",
+    "Verify support requests by calling the official IT number (out-of-band).",
+    "Report suspicious messages to your security/IT team."
+  ],
+  "startNode": "n1",
+  "nodes": {
+    "n1": {
+      "from": "attacker",
+      "text": "Hi, this is IT Support. We detected unusual sign-in attempts on your account. Are you trying to log in right now?",
+      "choices": [
+        {
+          "label": "No. What’s the ticket number? I’ll call IT using the official number.",
+          "next": "n2",
+          "risk": 0,
+          "flags": ["verify_out_of_band"],
+          "effects": ["resisted_urgency"],
+          "explain": "Good: you’re verifying through a trusted channel."
+        },
+        {
+          "label": "Yes, I’m logging in. Can you help me quickly?",
+          "next": "n3",
+          "risk": 2,
+          "flags": ["urgency"],
+          "effects": ["fell_for_urgency"],
+          "explain": "Risky: you’re giving the attacker momentum and confirming activity."
+        },
+        {
+          "label": "Who are you? Prove it.",
+          "next": "n3",
+          "risk": 0,
+          "flags": ["verify_identity"],
+          "explain": "Decent: skepticism is good, but you still need out-of-band verification."
+        }
+      ]
+    },
+    "n2": {
+      "from": "attacker",
+      "text": "We’re slammed. Faster fix: I’ll send a verification code. Read it back so I can secure your account.",
+      "choices": [
+        {
+          "label": "Send it.",
+          "next": "n4",
+          "risk": 4,
+          "flags": ["mfa_theft", "urgency"],
+          "effects": ["fell_for_urgency"],
+          "explain": "Bad: support should not need your MFA code."
+        },
+        {
+          "label": "No. I will contact IT directly. Do not message me again.",
+          "next": "end_good",
+          "risk": 0,
+          "flags": ["mfa_theft", "verify_out_of_band"],
+          "effects": ["mfa_protected", "resisted_urgency"],
+          "explain": "Correct: refuse the code request and verify via official channels."
+        }
+      ]
+    },
+    "n3": {
+      "from": "attacker",
+      "text": "Okay. To confirm you’re the owner, what’s your email and the last 4 digits of your phone number?",
+      "choices": [
+        {
+          "label": "My email is ___ and last 4 is ____.",
+          "next": "end_bad_soft",
+          "risk": 6,
+          "flags": ["credential_request", "overshare"],
+          "explain": "Unsafe: you shared personal identifiers with an unverified contact."
+        },
+        {
+          "label": "I’m not sharing that. I’ll reach IT through the official helpdesk.",
+          "next": "n2",
+          "risk": 0,
+          "flags": ["verify_out_of_band"],
+          "effects": ["resisted_urgency"],
+          "explain": "Good: refuse and use a trusted channel."
+        }
+      ]
+    },
+    "n4": {
+      "from": "system",
+      "text": "You receive a 6-digit MFA code. If you read it out loud, an attacker can use it to log in as you.",
+      "choices": [
+        {
+          "label": "Read the code to them.",
+          "next": "end_bad",
+          "risk": 12,
+          "flags": ["mfa_theft"],
+          "effects": ["mfa_shared"],
+          "explain": "Compromised: this is how MFA bypass scams work."
+        },
+        {
+          "label": "Do NOT share. Block and report the attempt.",
+          "next": "end_good",
+          "risk": 0,
+          "flags": ["mfa_theft", "report"],
+          "effects": ["mfa_protected"],
+          "explain": "Correct: never share MFA codes. Report it."
+        }
+      ]
+    },
+    "end_good": {
+      "from": "system",
+      "text": "✅ Safe outcome: You refused to share MFA codes and verified through official channels.",
+      "end": true
+    },
+    "end_bad_soft": {
+      "from": "system",
+      "text": "⚠️ Outcome: You shared personal identifiers. That increases risk (account recovery scams, targeted phishing).",
+      "end": true
+    },
+    "end_bad": {
+      "from": "system",
+      "text": "❌ Compromised: Sharing the MFA code allowed the attacker to log in.",
+      "end": true
+    }
+  }
+}

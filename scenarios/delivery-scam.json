@@ -1,0 +1,95 @@
+{
+  "title": "Delivery Scam — Fake Tracking Alert",
+  "difficulty": "Easy",
+  "intro": "A text claims your package is delayed and demands immediate action. Your goal: avoid clicking suspicious links and verify via official apps/sites.",
+  "typingDelayMs": 600,
+  "advice": [
+    "Don’t click unexpected tracking links in texts.",
+    "Open the official delivery app/site directly and check status there.",
+    "If unsure, contact the merchant/delivery provider using official channels."
+  ],
+  "startNode": "d1",
+  "nodes": {
+    "d1": {
+      "from": "attacker",
+      "text": "Delivery Alert: Your package is on hold due to address issues. Confirm now to avoid return. (link removed)",
+      "choices": [
+        {
+          "label": "I won’t click links. I’ll check the official app/site directly.",
+          "next": "d2",
+          "risk": 0,
+          "flags": ["link_spoof", "verify_out_of_band"],
+          "effects": ["resisted_urgency"],
+          "explain": "Correct: navigate directly to official channels."
+        },
+        {
+          "label": "Click the link and enter my address details.",
+          "next": "end_bad",
+          "risk": 10,
+          "flags": ["link_spoof", "credential_request"],
+          "explain": "Compromised: phishing pages steal your data."
+        },
+        {
+          "label": "Which carrier is this?",
+          "next": "d3",
+          "risk": 2,
+          "flags": ["partial_verify"],
+          "explain": "Okay but still risky: they can lie. Better to verify independently."
+        }
+      ]
+    },
+    "d2": {
+      "from": "system",
+      "text": "You open the official site/app and see no issue. The text was likely a scam.",
+      "choices": [
+        {
+          "label": "Report the message as spam and delete it.",
+          "next": "end_good",
+          "risk": 0,
+          "flags": ["report"],
+          "effects": ["resisted_urgency"],
+          "explain": "Good: reporting reduces future attacks."
+        },
+        {
+          "label": "Ignore it and move on.",
+          "next": "end_good",
+          "risk": 0,
+          "flags": [],
+          "explain": "Fine. Reporting is better, but ignoring is still safe here."
+        }
+      ]
+    },
+    "d3": {
+      "from": "attacker",
+      "text": "Carrier: ExpressShip. You must confirm within 15 minutes or it will be returned. (link removed)",
+      "choices": [
+        {
+          "label": "I’m not clicking anything. I’ll check my order confirmation and official tracking page.",
+          "next": "d2",
+          "risk": 0,
+          "flags": ["urgency", "link_spoof"],
+          "effects": ["resisted_urgency"],
+          "explain": "Correct: don’t let pressure override safe behavior."
+        },
+        {
+          "label": "Okay, I’ll confirm now so I don’t lose the package.",
+          "next": "end_bad",
+          "risk": 10,
+          "flags": ["urgency", "link_spoof"],
+          "effects": ["fell_for_urgency"],
+          "explain": "Compromised: urgency + link = classic scam."
+        }
+      ]
+    },
+    "end_good": {
+      "from": "system",
+      "text": "✅ Safe outcome: You avoided suspicious links and verified through official channels.",
+      "end": true
+    },
+    "end_bad": {
+      "from": "system",
+      "text": "❌ Compromised: You provided information through an unverified link. Assume the data is stolen and take protective steps.",
+      "end": true
+    }
+  }
+}

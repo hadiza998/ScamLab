@@ -1,0 +1,134 @@
+{
+  "title": "Fake Recruiter — Data & Payment Trap",
+  "difficulty": "Medium",
+  "intro": "A 'recruiter' offers a job quickly. Your goal: verify legitimacy, avoid giving sensitive info, and never pay for 'processing'.",
+  "typingDelayMs": 700,
+  "advice": [
+    "Verify recruiters via official company channels and real job postings.",
+    "Never pay fees to get hired.",
+    "Do not send SSN, bank details, or ID scans to unverified contacts."
+  ],
+  "startNode": "r1",
+  "nodes": {
+    "r1": {
+      "from": "attacker",
+      "text": "Hi! I’m Mia from Hiring. Your resume was shortlisted. We can offer you $32/hr. Can you start this week?",
+      "choices": [
+        {
+          "label": "What company is this and can you share the official job posting link (not a shortened link)?",
+          "next": "r2",
+          "risk": 0,
+          "flags": ["verify_identity", "link_spoof"],
+          "explain": "Good: you’re asking for verifiable details."
+        },
+        {
+          "label": "Yes, I can start. What do you need from me?",
+          "next": "r3",
+          "risk": 2,
+          "flags": ["urgency"],
+          "effects": ["fell_for_urgency"],
+          "explain": "Risky: moving too fast is a common scam pattern."
+        },
+        {
+          "label": "Sounds great. Send me the offer letter.",
+          "next": "r2",
+          "risk": 0,
+          "flags": ["paperwork_request"],
+          "explain": "Neutral: paperwork is normal, but still verify the sender."
+        }
+      ]
+    },
+    "r2": {
+      "from": "attacker",
+      "text": "We’re moving fast. To proceed, send your full name, address, and a photo of your ID so we can 'activate' payroll.",
+      "choices": [
+        {
+          "label": "No. I will only provide sensitive info through an official portal after verifying the company.",
+          "next": "r4",
+          "risk": 0,
+          "flags": ["credential_request", "verify_out_of_band"],
+          "explain": "Correct: sensitive info should go through trusted systems."
+        },
+        {
+          "label": "Okay, here is my ID photo and address.",
+          "next": "end_bad",
+          "risk": 10,
+          "flags": ["credential_request", "overshare"],
+          "explain": "Compromised: ID theft risk."
+        },
+        {
+          "label": "I can share my name, but not my ID. What’s your company email domain?",
+          "next": "r4",
+          "risk": 2,
+          "flags": ["partial_verify"],
+          "explain": "Better than sending ID, but scammers can spoof domains too."
+        }
+      ]
+    },
+    "r3": {
+      "from": "attacker",
+      "text": "Great. We need a background check. Pay a $49 processing fee today and we’ll reimburse you with your first paycheck.",
+      "choices": [
+        {
+          "label": "No legitimate employer asks candidates to pay fees. I’m ending this conversation.",
+          "next": "end_good",
+          "risk": 0,
+          "flags": ["payment_request", "scam_fee"],
+          "explain": "Correct: job fee scams are common."
+        },
+        {
+          "label": "Okay, where do I pay?",
+          "next": "end_bad_fee",
+          "risk": 12,
+          "flags": ["payment_request", "urgency"],
+          "effects": ["fell_for_urgency"],
+          "explain": "Compromised: you’re about to lose money and expose payment details."
+        },
+        {
+          "label": "Can you send an invoice?",
+          "next": "end_bad_fee",
+          "risk": 8,
+          "flags": ["payment_request"],
+          "explain": "Still bad: the fee itself is the red flag."
+        }
+      ]
+    },
+    "r4": {
+      "from": "attacker",
+      "text": "We don’t have time. If you don’t comply in 10 minutes we’ll move on to the next candidate.",
+      "choices": [
+        {
+          "label": "That’s fine. I’ll apply through the official website only. Goodbye.",
+          "next": "end_good",
+          "risk": 0,
+          "flags": ["urgency", "verify_out_of_band"],
+          "effects": ["resisted_urgency"],
+          "explain": "Correct: pressure tactics are a scam hallmark."
+        },
+        {
+          "label": "Wait—okay, I’ll send what you asked for.",
+          "next": "end_bad",
+          "risk": 10,
+          "flags": ["urgency", "credential_request"],
+          "effects": ["fell_for_urgency"],
+          "explain": "Compromised: urgency made you comply."
+        }
+      ]
+    },
+    "end_good": {
+      "from": "system",
+      "text": "✅ Safe outcome: You refused fees and protected sensitive information by verifying through official channels.",
+      "end": true
+    },
+    "end_bad": {
+      "from": "system",
+      "text": "❌ Compromised: You shared sensitive identity info with an unverified contact.",
+      "end": true
+    },
+    "end_bad_fee": {
+      "from": "system",
+      "text": "❌ Compromised: You paid a scam fee / exposed payment details. Legit employers do not require upfront candidate fees.",
+      "end": true
+    }
+  }
+}
